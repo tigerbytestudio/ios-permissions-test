@@ -1,0 +1,53 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Camera/Mic Permission Demo (Broken vs Fixed)</title>
+</head>
+<body>
+  <h2>WebRTC iOS Safari Demo: Broken vs Fixed Permissions</h2>
+
+  <!-- Broken version -->
+  <div style="border:1px solid red; padding:1em; margin-bottom:2em;">
+    <h3>Broken Version (uses permissions.query — fails on iOS)</h3>
+    <button onclick="checkPermissionsWrong()">Check Permission</button>
+    <p id="broken-status">Waiting...</p>
+  </div>
+
+  <!-- Fixed version -->
+  <div style="border:1px solid green; padding:1em;">
+    <h3>Fixed Version (uses getUserMedia — works on iOS)</h3>
+    <video id="preview" autoplay muted playsinline width="300" height="200" style="border:1px solid #ccc;"></video><br>
+    <button onclick="checkPermissionsRight()">Start Recording</button>
+    <p id="fixed-status">Waiting...</p>
+  </div>
+
+  <script>
+    function checkPermissionsWrong() {
+      navigator.permissions.query({ name: 'camera' }).then(result => {
+        if (result.state === 'granted') {
+          document.getElementById('broken-status').innerText = "Access granted!";
+        } else {
+          document.getElementById('broken-status').innerText = "Access denied!";
+          alert("Cannot access camera/mic.");
+        }
+      }).catch(err => {
+        document.getElementById('broken-status').innerText = "Permission API failed: " + err.message;
+      });
+    }
+
+    async function checkPermissionsRight() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        document.getElementById('preview').srcObject = stream;
+        document.getElementById('fixed-status').innerText = "Access granted!";
+        console.log("Media stream:", stream);
+      } catch (err) {
+        document.getElementById('fixed-status').innerText = "Error: " + err.message;
+        alert("Camera/Mic access error: " + err.message);
+      }
+    }
+  </script>
+</body>
+</html>
